@@ -1,8 +1,8 @@
 import React from 'react';
 import { weatherImg } from '../wetaherImg';
 import { timeOfDay } from '../wetaherImg';
-import { time } from './Highlights'
-import { getWeatherHour } from '../wetaherImg';
+// import { time } from './Highlights'
+// import { getWeatherHour } from '../wetaherImg';
 
 
 export const WeatherMain = (props) => {

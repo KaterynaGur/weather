@@ -1,12 +1,13 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { AlertContext } from '../context/alert/alertContext';
 
 
 
-export const Form = ({weatherHours, weatherDay, API_KEY, setWeatherDay, setWeatherHours, firstRequestCompleted, setFirstRequestCompleted}) => {
+export const Form = ({ setWeatherDay, setWeatherHours}) => {
 
    const [ input, setInput ] = useState('');
    const alert = useContext(AlertContext);
+   const API_KEY = process.env.REACT_APP_API_KEY;
 
    const saveCoordinatesToLocalStorage = (lat, lon) => {
       const coordinates = { lat, lon };
@@ -22,62 +23,52 @@ export const Form = ({weatherHours, weatherDay, API_KEY, setWeatherDay, setWeath
          return;
       } 
       
-      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${input.trim()}&units=metric&appid=${API_KEY}`)
-         .then(response => {
-            if (!response.ok) {
-               return response.json().then(errorData => {
-                  throw new Error(errorData.message || 'Server Error');
-               });
-            }
-            return response.json();
-         })
-        .then(data => {
-            console.log('первый запрос: ', data);
-            if(data.length === 0) return 
-            setWeatherDay({ 
-               name: data.name,
-               country: data.sys.country,
-               lat: data.coord.lat,
-               lon: data.coord.lon,
-               temp: data.main.temp,
-               temp_min: data.main.temp_min,
-               temp_max: data.main.temp_max,
-               feels_like: data.main.feels_like,
-               humidity: data.main.humidity,
-               pressure: data.main.pressure,
-               visibility: data.visibility,
-               description: data.weather[0].description,
-               wind_deg: data.wind.deg,
-               wind_speed: data.wind.speed,
-               sunrise: data.sys.sunrise,
-               sunset: data.sys.sunset,
-               main: data.weather[0].main,
-               date: data.dt,
-            });
-            saveCoordinatesToLocalStorage(data.coord.lat, data.coord.lon);
-            setFirstRequestCompleted(true);
-            setInput('');
-            
-        })
-        .catch(error => {
-         alert.show(error.message, 'error');
-      });
+      fetchWeatherData1(input.trim());
    }
    
-   
-   useEffect(() => {
-      if (firstRequestCompleted) {
-        fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${weatherDay.lat}&lon=${weatherDay.lon}&units=metric&appid=${API_KEY}`)
-          .then(response => response.json())
-          .then(data => {
-            console.log('второй запрос: ', data)
-            setWeatherHours(data.list);
-            setFirstRequestCompleted(false);
+   async function fetchWeatherData1(input) {
+      try {
+         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${input}&units=metric&appid=${API_KEY}`)
+         if (!response.ok) {
+            return response.json().then(errorData => {
+               throw new Error(errorData.message || 'Server Error');
+            });
+         }
+         const data = await response.json();
+         console.log(data)
+         setWeatherDay({ 
+            name: data.name,
+            country: data.sys.country,
+            lat: data.coord.lat,
+            lon: data.coord.lon,
+            temp: data.main.temp,
+            temp_min: data.main.temp_min,
+            temp_max: data.main.temp_max,
+            feels_like: data.main.feels_like,
+            humidity: data.main.humidity,
+            pressure: data.main.pressure,
+            visibility: data.visibility,
+            description: data.weather[0].description,
+            wind_deg: data.wind.deg,
+            wind_speed: data.wind.speed,
+            sunrise: data.sys.sunrise,
+            sunset: data.sys.sunset,
+            main: data.weather[0].main,
+            date: data.dt,
          });
+         saveCoordinatesToLocalStorage(data.coord.lat, data.coord.lon);
+         setInput('');
+         const response2 = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${data.coord.lat}&lon=${data.coord.lon}&units=metric&appid=${API_KEY}`)
+         const data2 = await response2.json();
+         console.log(data2)
+         setWeatherHours(data2.list);
+        
       }
-    }, [firstRequestCompleted, weatherDay.lat, weatherDay.lon, API_KEY]);
-   
-   
+      catch(error) {
+         alert.show(error.message, 'error');
+      }
+    }
+
    return (
       <div>
          <form onSubmit={formHandler} className="flex items-center justify-between">
