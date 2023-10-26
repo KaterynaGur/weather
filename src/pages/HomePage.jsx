@@ -1,4 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
+
+import { AlertContext } from '../context/alert/alertContext';
 
 import { Header } from '../components/Header';
 import { Highlights } from '../components/Highlights';
@@ -32,11 +34,68 @@ export const HomePage = () => {
    const [ weatherDay, setWeatherDay ] = useState(initialWeatherDay);
    const [ weatherHours, setWeatherHours ] = useState([]);
    const [ firstRequestCompleted, setFirstRequestCompleted ] = useState(false);
+   const alert = useContext(AlertContext);
  
    const handleLogoClick = () => {
       window.location.reload();
    };
    
+   // useEffect(() => {
+   //    const savedCoordinates = localStorage.getItem('selectedCoordinates');
+   //    if (savedCoordinates) {
+   //       const { lat, lon } = JSON.parse(savedCoordinates);
+   //       fetchWeatherData(lat, lon);
+   //    } 
+   //    else if ('geolocation' in navigator) {
+   //      navigator.geolocation.getCurrentPosition(
+   //        (position) => {
+   //          const { latitude, longitude } = position.coords;
+   //          fetchWeatherData(latitude, longitude);
+   //        },
+   //        (error) => {
+   //          alert.show(error.message, 'error');
+   //          fetchWeatherData(50.4501, 30.5234);
+   //        }
+   //      );
+   //    } else {
+   //       alert.show('Geolocation is not supported in this browser', 'error')
+   //       fetchWeatherData(50.4501, 30.5234); 
+   //    }
+   //  }, []);
+    
+   
+   //  function fetchWeatherData(lat, lon) {
+   //    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`)
+   //      .then(response => response.json())
+   //      .then(data => {
+   //        setWeatherDay({ 
+   //          name: data.name,
+   //          country: data.sys.country,
+   //          lat: data.coord.lat,
+   //          lon: data.coord.lon,
+   //          temp: data.main.temp,
+   //          temp_min: data.main.temp_min,
+   //          temp_max: data.main.temp_max,
+   //          feels_like: data.main.feels_like,
+   //          humidity: data.main.humidity,
+   //          pressure: data.main.pressure,
+   //          visibility: data.visibility,
+   //          description: data.weather[0].description,
+   //          wind_deg: data.wind.deg,
+   //          wind_speed: data.wind.speed,
+   //          sunrise: data.sys.sunrise,
+   //          sunset: data.sys.sunset,
+   //          main: data.weather[0].main,
+   //          date: data.dt,
+   //       });
+   //       setFirstRequestCompleted(true);
+   //      })
+   //      .catch(error => {
+   //        alert.show(error.message, 'error')
+   //      });
+   //  }
+
+
    useEffect(() => {
       const savedCoordinates = localStorage.getItem('selectedCoordinates');
       if (savedCoordinates) {
@@ -56,11 +115,11 @@ export const HomePage = () => {
         );
       } else {
          alert.show('Geolocation is not supported in this browser', 'error')
-   
-        fetchWeatherData(50.4501, 30.5234); 
+         fetchWeatherData(50.4501, 30.5234); 
       }
     }, []);
     
+   
     function fetchWeatherData(lat, lon) {
       fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`)
         .then(response => response.json())
@@ -92,6 +151,11 @@ export const HomePage = () => {
         });
     }
 
+
+
+
+    
+
    return (
       <div>
          <Header
@@ -114,7 +178,6 @@ export const HomePage = () => {
                   <Highlights weatherDay={weatherDay}/>
                </div>
             </div>
-            
          </main>
       </div>
    );

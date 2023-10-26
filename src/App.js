@@ -10,7 +10,6 @@ const router = createBrowserRouter(createRoutesFromElements(
       <Route index element={<HomePage />}/>
       <Route path='*' element={ <ErrorPage /> }/>
    </Route>
-   
 ))
 
 function App() {
